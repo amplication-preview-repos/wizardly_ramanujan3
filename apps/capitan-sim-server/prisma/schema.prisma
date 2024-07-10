@@ -1,0 +1,57 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DB_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model SimCard {
+  id          String   @id @default(cuid())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  phoneNumber String?
+  modem       Modem?   @relation(fields: [modemId], references: [id])
+  modemId     String?
+  rentals     Rental[]
+}
+
+model Modem {
+  id        String           @id @default(cuid())
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+  name      String?
+  model     String?
+  status    EnumModemStatus?
+  simCards  SimCard[]
+}
+
+model Rental {
+  id        String    @id @default(cuid())
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  startDate DateTime?
+  endDate   DateTime?
+  user      User?     @relation(fields: [userId], references: [id])
+  userId    String?
+  simCard   SimCard?  @relation(fields: [simCardId], references: [id])
+  simCardId String?
+}
+
+model User {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  firstName String?
+  lastName  String?
+  username  String   @unique
+  email     String?  @unique
+  password  String
+  roles     Json
+  rentals   Rental[]
+}
+
+enum EnumModemStatus {
+  Option1
+}
